@@ -42,7 +42,6 @@ function Formulario({
     setAno,
     emailRef,
     anoRef,
-    cpfRef,
     finalizar,
     isLargeScreen,
 }) {
@@ -119,7 +118,7 @@ export default function Cadastro() {
   const anoRef = useRef(null);
 
   function finalizar() {
-    /*
+    
     if (!nome || !email || !ano || !cpf) {
       Alert.alert('Campos obrigatórios', 'Por favor, preencha todos os campos.');
       return;
@@ -136,7 +135,7 @@ export default function Cadastro() {
       Alert.alert('Data inválida', 'Use o formato DD/MM/AAAA.');
       return;
     }
-*/
+
     navigation.navigate('CadastroUsers2', { nome, email, ano });
   }
 

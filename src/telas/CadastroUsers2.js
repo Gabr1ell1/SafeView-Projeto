@@ -152,7 +152,7 @@ function Formulario({
 
 /* Segunda Tela de Cadastro*/
 export default function Cadastro2({ navigation, route }) {
-  const { nome, email, ano, cpf } = route.params;
+  const { nome, email, ano } = route.params;
 
   const [marca, setMarca] = useState('');
   const [modelo, setModelo] = useState('');
