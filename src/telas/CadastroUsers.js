@@ -11,41 +11,40 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-
 import style from '../style';
 import Input from '../components/Input';
 import FundoDegrade from '../components/FundoDegrade';
 import Botao from '../components/Botao';
 
+/* ------------------------------------------------------------------------------ */
+
 function verificarMaioridade(dataStr) {
-  const [dia, mes, ano] = dataStr.split('/').map(Number);
-  if (!dia || !mes || !ano || dataStr.length !== 10) return false;
+    const [dia, mes, ano] = dataStr.split('/').map(Number);
+    if (!dia || !mes || !ano || dataStr.length !== 10) return false;
 
-  const hoje = new Date();
-  const nascimento = new Date(ano, mes - 1, dia);
+    const hoje = new Date();
+    const nascimento = new Date(ano, mes - 1, dia);
 
-  const idade = hoje.getFullYear() - nascimento.getFullYear();
-  const m = hoje.getMonth() - nascimento.getMonth();
+    const idade = hoje.getFullYear() - nascimento.getFullYear();
+    const m = hoje.getMonth() - nascimento.getMonth();
 
-  return m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())
-    ? idade - 1 >= 18
-    : idade >= 18;
+    return m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())
+      ? idade - 1 >= 18
+      : idade >= 18;
 }
 
 function Formulario({
-  nome,
-  setNome,
-  email,
-  setEmail,
-  ano,
-  setAno,
-  cnh,
-  setCnh,
-  emailRef,
-  anoRef,
-  cnhRef,
-  finalizar,
-  isLargeScreen,
+    nome,
+    setNome,
+    email,
+    setEmail,
+    ano,
+    setAno,
+    emailRef,
+    anoRef,
+    cpfRef,
+    finalizar,
+    isLargeScreen,
 }) {
   return (
     <View style={isLargeScreen ? styles.card : styles.formMobile}>
@@ -99,18 +98,7 @@ function Formulario({
         keyboardType="numeric"
         returnKeyType="next"
         blurOnSubmit={false}
-        onSubmitEditing={() => cnhRef.current?.focus()}
-      />
-
-      <Input
-        label="CNH:"
-        placeholder="98765432100"
-        value={cnh}
-        onChangeText={(text) => setCnh(text.replace(/\D/g, ''))}
-        ref={cnhRef}
-        keyboardType="numeric"
-        returnKeyType="done"
-        blurOnSubmit={true}
+        onSubmitEditing={() => cpfRef.current?.focus()}
       />
 
       <Botao label="Entrar" onPress={finalizar} />
@@ -126,14 +114,13 @@ export default function Cadastro() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [ano, setAno] = useState('');
-  const [cnh, setCnh] = useState('');
 
   const emailRef = useRef(null);
   const anoRef = useRef(null);
-  const cnhRef = useRef(null);
 
   function finalizar() {
-    if (!nome || !email || !ano || !cnh) {
+    /*
+    if (!nome || !email || !ano || !cpf) {
       Alert.alert('Campos obrigatórios', 'Por favor, preencha todos os campos.');
       return;
     }
@@ -149,14 +136,8 @@ export default function Cadastro() {
       Alert.alert('Data inválida', 'Use o formato DD/MM/AAAA.');
       return;
     }
-
-    const cnhLimpa = cnh.replace(/\D/g, '');
-    if (cnhLimpa.length !== 11) {
-      Alert.alert('CNH inválida', 'A CNH deve conter 11 números.');
-      return;
-    }
-
-    navigation.navigate('CadastroUsers2', { nome, email, ano, cnh });
+*/
+    navigation.navigate('CadastroUsers2', { nome, email, ano });
   }
 
   return (
@@ -189,11 +170,10 @@ export default function Cadastro() {
               setEmail={setEmail}
               ano={ano}
               setAno={setAno}
-              cnh={cnh}
-              setCnh={setCnh}
+              
               emailRef={emailRef}
               anoRef={anoRef}
-              cnhRef={cnhRef}
+
               verificarMaioridade={verificarMaioridade}
               finalizar={finalizar}
               isLargeScreen={isLargeScreen}

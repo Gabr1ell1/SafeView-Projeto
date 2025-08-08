@@ -8,8 +8,11 @@ import {
   useWindowDimensions,
   Alert,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import style from '../style';
@@ -17,6 +20,18 @@ import Input from '../components/Input';
 import Select from '../components/Select';
 import FundoDegrade from '../components/FundoDegrade';
 import Botao from '../components/Botao';
+
+/* -------------------------------------------------------------------- */
+
+const LinhaHorizontal = () => (
+  <View
+    style={{
+      borderBottomColor: '#ada8a836',
+      borderBottomWidth: 1,
+      marginVertical: 10,
+    }}
+  />
+);
 
 function validarSenha(senha) {
   const temMinimo15 = senha.length >= 15;
@@ -38,20 +53,28 @@ function getForcaSenha(s) {
   return 'Fraca';
 }
 
+const marcasModelos = {
+  Hyundai: ['Hyundai HR Baú'],
+  Fiat: ['Fiat Ducato Baú'],
+  Renault: ['Renault Master Baú'],
+  Volvo: ['FH 460 Baú','FH 540 Baú','FH 540 Baú', 'VM 270 Baú'],
+  Scania: ['R440 Baú', ' R450 Baú','P360 Baú'],
+  'Mercedes-Benz': ['Sprinter 415 Baú', ' Sprinter 515 Baú', 'Accelo 1016 Baú','Atego 1719 Baú','Atego 2426 Baú'],
+  Iveco: ['Stralis Baú', 'Iveco Daily 35S14 Baú'],
+  Volkswagen: [' Delivery 9.170 Baú','Delivery 11.180 Baú','Constellation 17.230 Baú','Constellation 24.280'],
+};
+
 function Formulario({
-  veiculo,
-  setVeiculo,
-  veiculoOutro,
-  setVeiculoOutro,
-  altura,
-  setAltura,
-  comprimento,
-  setComprimento,
+  marca,
+  setMarca,
+  modelo,
+  setModelo,
   senha,
   setSenha,
   isLargeScreen,
   onSubmit,
 }) {
+    const modelosDisponiveis = marca ? marcasModelos[marca] || [] : [];
     const forcaSenha = getForcaSenha(senha);
     const corForcaSenha =
     forcaSenha === 'Forte'
@@ -63,110 +86,90 @@ function Formulario({
       : '#D5E3ED';
 
   return (
-    <View style={isLargeScreen ? styles.card : styles.formMobile}>
-      <Text style={[style.titulo, styles.cardtitulo]}>
-        Sobre seu veículo
-      </Text>
+     <View style={isLargeScreen ? styles.card : styles.formMobile}>
+          <Text style={[style.titulo, styles.cardtitulo]}>
+            Sobre seu veículo
+          </Text>
 
-      <View>
-        <View style={styles.PickerContainer}>
-          {veiculo !== 'Outro' ? (
-            <Select
-              label="Veículo:"
-              selectedValue={veiculo}
-              onValueChange={setVeiculo}
-              options={[
-                { label: 'Hyundai HR Baú', value: 'Hyundai HR Baú' },
-                { label: 'Fiat Ducato Baú', value: 'Fiat Ducato Baú' },
-                { label: 'Renault Master Baú', value: 'Renault Master Baú' },
-                { label: 'Iveco Daily 35S14 Baú', value: 'Iveco Daily 35S14 Baú' },
-                { label: 'Mercedes-Benz Sprinter 415 Baú', value: 'Mercedes-Benz Sprinter 415 Baú' },
-                { label: 'Mercedes-Benz Sprinter 515 Baú', value: 'Mercedes-Benz Sprinter 515 Baú' },
-                { label: 'Volkswagen Delivery 9.170 Baú', value: 'Volkswagen Delivery 9.170 Baú' },
-                { label: 'Volkswagen Delivery 11.180 Baú', value: 'Volkswagen Delivery 11.180 Baú' },
-                { label: 'Mercedes-Benz Accelo 1016 Baú', value: 'Mercedes-Benz Accelo 1016 Baú' },
-                { label: 'Ford Cargo 1119 Baú', value: 'Ford Cargo 1119 Baú' },
-                { label: 'Iveco Tector 11-190 Baú', value: 'Iveco Tector 11-190 Baú' },
-                { label: 'Agrale 8700 Baú', value: 'Agrale 8700 Baú' },
-                { label: 'Mercedes-Benz Atego 1719 Baú', value: 'Mercedes-Benz Atego 1719 Baú' },
-                { label: 'Mercedes-Benz Atego 2426 Baú', value: 'Mercedes-Benz Atego 2426 Baú' },
-                { label: 'Volkswagen Constellation 17.230 Baú', value: 'Volkswagen Constellation 17.230 Baú' },
-                { label: 'Ford Cargo 2429 Baú', value: 'Ford Cargo 2429 Baú' },
-                { label: 'Iveco Tector 240E25 Baú', value: 'Iveco Tector 240E25 Baú' },
-                { label: 'Scania R440 Baú', value: 'Scania R440 Baú' },
-                { label: 'Scania R450 Baú', value: 'Scania R450 Baú' },
-                { label: 'Volvo FH 460 Baú', value: 'Volvo FH 460 Baú' },
-                { label: 'Volvo FH 540 Baú', value: 'Volvo FH 540 Baú' },
-                { label: 'Outro', value: 'Outro' },
-              ]}
-            />
-          ) : (
-            <Input
-              label="Veículo:"
-              placeholder="Ex: Mercedes-Benz 1215 Baú"
-              value={veiculoOutro}
-              onChangeText={setVeiculoOutro}
-            />
-          )}
-        </View>
+          <View>
+            <View style={styles.PickerContainer}>
+                <Select
+                    label="Marca do caminhão:"
+                    selectedValue={marca}
+                    onValueChange={(value) => {
+                      setMarca(value);
+                      setModelo('');
+                    }}
+                    options={[
+                      ...Object.keys(marcasModelos)
+                        .map((m) => ({
+                        label: m,
+                        value: m,
+                      })),
+                    ]}
+                  />
 
-        <View style={styles.metade}>
+                {marca !== '' && (
+                <Select
+                    label="Modelo do caminhão:"
+                    selectedValue={modelo}
+                    onValueChange={setModelo}
+                    options={[
+                      ...modelosDisponiveis
+                        .map((mod) => ({
+                        label: mod,
+                        value: mod,
+                      })),
+                    ]}
+                  />
+                )}
+            </View>
+          </View>
+
+ <LinhaHorizontal />
+
           <Input
-            label="Altura:"
-            placeholder="Ex: 3.5"
-            value={altura}
-            keyboardType="numeric"
-            onChangeText={(text) => {
-              const onlyNumbers = text.replace(/[^0-9.,]/g, '');
-              setAltura(onlyNumbers);
-            }}
+          label="Crie uma senha:"
+          placeholder="Ex: C@rro2024!Blindado"
+          value={senha}
+          onChangeText={setSenha}
+          secureTextEntry={true}
           />
-        </View>
-      </View>
-      <Input
-        label="Comprimento do baú:"
-        placeholder="Ex: 2.4 x 4.0"
-        value={comprimento}
-        onChangeText={(text) => {
-          const filtered = text.replace(/[^0-9x.,]/gi, '');
-          setComprimento(filtered);
-        }}
-      />
+          <Text style={[styles.regrasSenha,]}>
+            A senha deve ter pelo menos 15 caracteres OU pelo menos 6 caracteres, incluindo um número, letra e símbolo (ex: @, #, !, %)
+          </Text>
 
-      <Input
-      label="Crie uma senha:"
-      placeholder="Ex: C@rro2024!Blindado"
-      value={senha}
-      onChangeText={setSenha}
-      secureTextEntry={true}
-      />
-      <Text
-        style={[styles.regrasSenha,]}
-      >
-        A senha deve ter pelo menos 15 caracteres OU pelo menos 6 caracteres,
-        incluindo um número, letra e símbolo (ex: @, #, !, %)
-      </Text>
+          {forcaSenha !== '' && (
+            <Text style={{ color: corForcaSenha }}>
+              Senha: {forcaSenha}
+            </Text>
+          )}
 
-      {forcaSenha !== '' && (
-        <Text style={{ color: corForcaSenha }}>
-          Senha: {forcaSenha}
-        </Text>
-      )}
-
-      <Botao label="Entrar" onPress={onSubmit} />
+          <Botao label="Entrar" onPress={onSubmit} />
     </View>
   );
 }
 
+/* Segunda Tela de Cadastro*/
 export default function Cadastro2({ navigation, route }) {
-  const { nome, email, ano, cnh } = route.params;
-  const [veiculo, setVeiculo] = useState('');
-  const [altura, setAltura] = useState('');
-  const [comprimento, setComprimento] = useState('');
+  const { nome, email, ano, cpf } = route.params;
+
+  const [marca, setMarca] = useState('');
+  const [modelo, setModelo] = useState('');
   const [senha, setSenha] = useState('');
-  const [veiculoOutro, setVeiculoOutro] = useState('');
+
   const { width } = useWindowDimensions();
   const isLargeScreen = width > 768;
+
+  const forcaSenha = getForcaSenha(senha);
+  const corForcaSenha =
+    forcaSenha === 'Forte'
+      ? '#0f0'
+      : forcaSenha === 'Aceitável'
+      ? '#FFA500'
+      : forcaSenha === 'Fraca'
+      ? '#f00'
+      : '#D5E3ED';
 
   const salvarDados = async () => {
     try {
@@ -174,20 +177,19 @@ export default function Cadastro2({ navigation, route }) {
         nome,
         email,
         ano,
-        cnh,
-        veiculo: veiculo === 'Outro' ? veiculoOutro : veiculo,
-        altura,
-        comprimento,
+        veiculo: `${marca} ${modelo}`,
         senha,
       });
+
       Alert.alert('Sucesso', 'Cadastro realizado!');
       navigation.navigate('CadastroUsers');
+
     } catch (error) {
+      
       Alert.alert('Erro', 'Não foi possível salvar os dados.');
       console.log(error);
     }
   };
-
 
   return (
     <FundoDegrade>
@@ -197,6 +199,9 @@ export default function Cadastro2({ navigation, route }) {
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={Platform.OS === 'ios' ? 100 : 20}>
         <View style={[styles.container, isLargeScreen && styles.containerRow]}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={30} color="#fff" />
+            </TouchableOpacity>
             {isLargeScreen && (
               <View style={styles.imageContainer}>
                 <Image
@@ -214,16 +219,14 @@ export default function Cadastro2({ navigation, route }) {
               </Text>
 
               <Formulario
-                veiculo={veiculo}
-                setVeiculo={setVeiculo}
-                veiculoOutro={veiculoOutro}
-                setVeiculoOutro={setVeiculoOutro}
-                altura={altura}
-                setAltura={setAltura}
-                comprimento={comprimento}
-                setComprimento={setComprimento}
+                marca={marca}
+                setMarca={setMarca}
+                modelo={modelo}
+                setModelo={setModelo}
+             
                 senha={senha}
                 setSenha={setSenha}
+
                 isLargeScreen={isLargeScreen}
                 onSubmit={salvarDados}
               />
@@ -234,6 +237,7 @@ export default function Cadastro2({ navigation, route }) {
   );
 }
 
+
 const styles = StyleSheet.create({
   scrollContainer: { 
     flexGrow: 1, 
@@ -243,6 +247,11 @@ const styles = StyleSheet.create({
   containerRow: { 
     flexDirection: 'row', 
     justifyContent: 'space-between' 
+  },
+  backButton: {
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+    padding: 1,
   },
   imageContainer: { 
     flex: 1, 
